@@ -1,0 +1,34 @@
+#Finding TM-cCREs
+
+bigWigAverageOverBed YAPon_1.cpm.bw cCRE.bed YAPon_1.tab
+
+paste <(cut -f4 cCRE.bed) <(cut -f4 YAPon_1.tab) ... <(Liver_2.tab) > counts.tab
+
+#Import to R
+
+cre<-read.table(counts.tab,header=F)
+
+#name columns
+
+colnames(cre)<-c("cCRE","tumor1","tumor2","liver1","liver2")
+
+#scale and round to remove float
+cre[,2:5]<-round(cre[,2:5]*100)
+
+#make metadata df
+metaData<-data.frame(id=c(samples),dex=c(conditions)
+
+#make DESeqDataSet
+dds <- DESeqDataSetFromMatrix(countData=cre, colData=metaData, design=~dex, tidy = TRUE)
+
+#prevent DESeq from re-normalizing our CPM data
+"sizeFactors"(dds) <- 1 
+
+des<-DESeq(dds,parallel=T) 
+
+#Save result
+write.table(results(des),"cre.tsv",quote=FALSE, sep='\t', col.names = NA)
+
+#Reassociate cCRE accessions in R with merge, or in shell with join/paste in BED format (chr,start,stop,cCRE,...)
+
+#Set qval threshold for calling differential peaks (q<0.05 in our paper)
