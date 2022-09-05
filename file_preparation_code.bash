@@ -1,8 +1,7 @@
 ##File Preparation Sample Code###
 
 #Trim using cutadapt, trimgalore, or trimomatic
-trim_galore --paired --nextera >> cutadapt.out
-
+trim_galore --paired --nextera $i
 #Align
 bwa mem -M -t 16 ~/BWAIndex/genome.fa $i ${i%R1*}R2.fq | samtools view -Sb -@ 16 - | samtools sort -@ 16 - > ${i%_R1*}.bam
 
